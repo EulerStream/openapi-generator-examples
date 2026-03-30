@@ -21,6 +21,13 @@ function toKebabCase(str: string): string {
     .replace(/^-|-$/g, '');
 }
 
+function wrapOverrideForType(override: string, schema: NormalizedSchema): string {
+  if (schema.type === 'string' && !(schema.format === 'date' || schema.format === 'date-time')) {
+    return `"${override}"`;
+  }
+  return override;
+}
+
 function exampleValueForSchema(schema: NormalizedSchema, name: string): string {
   if (schema.enum && schema.enum.length > 0) {
     return `"${schema.enum[0]}"`;
@@ -39,9 +46,50 @@ function exampleValueForSchema(schema: NormalizedSchema, name: string): string {
       return '0';
     case 'boolean':
       return 'true';
+    case 'object':
+      if (schema.properties) {
+        return buildObjectLiteral(schema, 0);
+      }
+      return '{}';
+    case 'array':
+      if (schema.items) {
+        const itemValue = exampleValueForSchema(schema.items, 'item');
+        return `[${itemValue}]`;
+      }
+      return '[]';
     default:
       return `"${name}_value"`;
   }
+}
+
+function buildObjectLiteral(
+  schema: NormalizedSchema,
+  depth: number,
+  valueOverrides?: Record<string, string>,
+): string {
+  const props = schema.properties ?? {};
+  const required = schema.required ?? [];
+  const indent = '  '.repeat(depth + 1);
+  const closingIndent = depth > 0 ? '  '.repeat(depth) : '';
+
+  const entries: string[] = [];
+  for (const [propName, propSchema] of Object.entries(props)) {
+    if (required.includes(propName)) {
+      const override = valueOverrides?.[propName];
+      let value: string;
+      if (override != null) {
+        value = wrapOverrideForType(override, propSchema);
+      } else if (propSchema.type === 'object' && propSchema.properties) {
+        value = buildObjectLiteral(propSchema, depth + 1);
+      } else {
+        value = exampleValueForSchema(propSchema, propName);
+      }
+      entries.push(`${indent}${propName}: ${value},`);
+    }
+  }
+
+  if (entries.length === 0) return '{}';
+  return '{\n' + entries.join('\n') + '\n' + closingIndent + '}';
 }
 
 const typescriptAdapter: LanguageAdapter = {
@@ -99,7 +147,9 @@ const typescriptAdapter: LanguageAdapter = {
 
   buildParamDeclaration(param: NormalizedParam, valueOverride?: string): string {
     const tsType = this.mapType(param.schema);
-    const value = valueOverride ?? this.exampleValue(param);
+    const value = valueOverride != null
+      ? wrapOverrideForType(valueOverride, param.schema)
+      : this.exampleValue(param);
     return `let ${param.name}: ${tsType} = ${value};`;
   },
 
@@ -115,25 +165,13 @@ const typescriptAdapter: LanguageAdapter = {
   },
 
   buildBodyConstruction(body: NormalizedRequestBody, valueOverrides?: Record<string, string>): string {
-    const props = body.schema.properties ?? {};
-    const required = body.schema.required ?? [];
-
-    const entries: string[] = [];
-    for (const [propName, propSchema] of Object.entries(props)) {
-      if (required.includes(propName)) {
-        const value = valueOverrides?.[propName] ?? exampleValueForSchema(propSchema, propName);
-        entries.push(`  ${propName}: ${value},`);
-      }
-    }
+    const objectLiteral = buildObjectLiteral(body.schema, 0, valueOverrides);
 
     const opening = body.schemaName
-      ? `const body: ${body.schemaName} = {`
-      : `const body = {`;
+      ? `const body: ${body.schemaName} = `
+      : `const body = `;
 
-    const lines = [opening];
-    lines.push(...entries);
-    lines.push('};');
-    return lines.join('\n');
+    return opening + objectLiteral + ';';
   },
 
   buildResultLine(call: string, returnType: string | undefined): string {

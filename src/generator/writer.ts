@@ -26,6 +26,11 @@ export interface OperationJson {
   };
 }
 
+export interface WriteResult {
+  filesWritten: string[];
+  json?: OperationJson;
+}
+
 /**
  * Write per-operation output files in the requested formats.
  */
@@ -36,30 +41,48 @@ export function writeOperationFile(
   context: TemplateContext,
   adapter: LanguageAdapter,
   formats: OutputFormat[],
-): string[] {
+): WriteResult {
   const tagDir = adapter.toTagDirectory(op.tag);
   const fileName = adapter.toFileName(op.operationId);
   const dirPath = path.join(outputDir, adapter.id, tagDir);
 
   fs.mkdirSync(dirPath, { recursive: true });
 
-  const written: string[] = [];
+  const filesWritten: string[] = [];
+  let json: OperationJson | undefined;
 
   if (formats.includes('md')) {
     const mdPath = path.join(dirPath, fileName + '.md');
     const md = buildMarkdown(op, renderedExample, context);
     fs.writeFileSync(mdPath, md, 'utf-8');
-    written.push(mdPath);
+    filesWritten.push(mdPath);
   }
 
   if (formats.includes('json')) {
+    json = buildJson(op, renderedExample, context);
     const jsonPath = path.join(dirPath, fileName + '.json');
-    const json = buildJson(op, renderedExample, context);
     fs.writeFileSync(jsonPath, JSON.stringify(json, null, 2) + '\n', 'utf-8');
-    written.push(jsonPath);
+    filesWritten.push(jsonPath);
   }
 
-  return written;
+  return { filesWritten, json };
+}
+
+/**
+ * Write a combined index.json containing all operation JSONs.
+ */
+export function writeJsonIndex(
+  outputDir: string,
+  adapter: LanguageAdapter,
+  entries: OperationJson[],
+): void {
+  const dirPath = path.join(outputDir, adapter.id);
+  fs.mkdirSync(dirPath, { recursive: true });
+  fs.writeFileSync(
+    path.join(dirPath, 'index.json'),
+    JSON.stringify(entries, null, 2) + '\n',
+    'utf-8',
+  );
 }
 
 /**

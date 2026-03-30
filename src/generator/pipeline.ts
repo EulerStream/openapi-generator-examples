@@ -5,8 +5,8 @@ import { getLanguageByGenerator, getLanguageById } from '../languages/registry.j
 import { parseSpec } from '../spec/parser.js';
 import { buildTemplateContext } from '../templates/context.js';
 import { renderTemplate, getDefaultTemplatePath } from '../templates/renderer.js';
-import { writeOperationFile, writeLanguageIndex } from './writer.js';
-import type { OutputFormat } from './writer.js';
+import { writeOperationFile, writeLanguageIndex, writeJsonIndex } from './writer.js';
+import type { OutputFormat, OperationJson } from './writer.js';
 
 export interface GenerateOptions {
   /** Path to the OpenAPI spec (JSON or YAML) */
@@ -60,16 +60,21 @@ export function generate(options: GenerateOptions): GenerateResult {
 
   // Generate per-operation files
   const filesWritten: string[] = [];
+  const jsonEntries: OperationJson[] = [];
 
   for (const op of operations) {
     const context = buildTemplateContext(op, config, adapter);
     const rendered = renderTemplate(templatePath, context);
-    const filePaths = writeOperationFile(usageDir, op, rendered, context, adapter, formats);
-    filesWritten.push(...filePaths);
+    const result = writeOperationFile(usageDir, op, rendered, context, adapter, formats);
+    filesWritten.push(...result.filesWritten);
+    if (result.json) jsonEntries.push(result.json);
   }
 
-  // Write index
+  // Write indices
   writeLanguageIndex(usageDir, adapter, operations);
+  if (formats.includes('json') && jsonEntries.length > 0) {
+    writeJsonIndex(usageDir, adapter, jsonEntries);
+  }
 
   return {
     languageId: adapter.id,

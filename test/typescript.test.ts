@@ -210,14 +210,34 @@ describe('typescript adapter', () => {
       expect(adapter.buildParamDeclaration(param)).toBe('let petId: string = "petId_value";');
     });
 
-    it('uses valueOverride as-is when provided', () => {
+    it('uses valueOverride as-is for non-string types', () => {
       const param: NormalizedParam = {
         name: 'account_id',
         in: 'path',
         required: true,
         schema: { type: 'integer' },
       };
-      expect(adapter.buildParamDeclaration(param, '{{account_id}}')).toBe('let account_id: number = {{account_id}};');
+      expect(adapter.buildParamDeclaration(param, '$account_id')).toBe('let account_id: number = $account_id;');
+    });
+
+    it('wraps valueOverride in quotes for string types', () => {
+      const param: NormalizedParam = {
+        name: 'name',
+        in: 'query',
+        required: true,
+        schema: { type: 'string' },
+      };
+      expect(adapter.buildParamDeclaration(param, '$name')).toBe('let name: string = "$name";');
+    });
+
+    it('does not quote valueOverride for date types', () => {
+      const param: NormalizedParam = {
+        name: 'from',
+        in: 'query',
+        required: true,
+        schema: { type: 'string', format: 'date-time' },
+      };
+      expect(adapter.buildParamDeclaration(param, '$from')).toBe('let from: Date = $from;');
     });
   });
 
@@ -304,7 +324,69 @@ describe('typescript adapter', () => {
       expect(result).not.toContain('RequestBody');
     });
 
-    it('uses valueOverrides as-is for body properties', () => {
+    it('generates nested object literals', () => {
+      const body: NormalizedRequestBody = {
+        required: true,
+        schemaName: 'CreateAlertTargetPayload',
+        schema: {
+          type: 'object',
+          properties: {
+            url: {
+              type: 'object',
+              properties: {
+                host: { type: 'string' },
+                port: { type: 'integer' },
+              },
+              required: ['host', 'port'],
+            },
+            name: { type: 'string' },
+          },
+          required: ['url', 'name'],
+        },
+      };
+      const result = adapter.buildBodyConstruction(body);
+      expect(result).toContain('const body: CreateAlertTargetPayload = {');
+      expect(result).toContain('url: {');
+      expect(result).toContain('host: "host_value",');
+      expect(result).toContain('port: 0,');
+      expect(result).toContain('name: "name_value",');
+    });
+
+    it('generates empty object for object without properties', () => {
+      const body: NormalizedRequestBody = {
+        required: true,
+        schemaName: 'Payload',
+        schema: {
+          type: 'object',
+          properties: {
+            metadata: { type: 'object' },
+          },
+          required: ['metadata'],
+        },
+      };
+      const result = adapter.buildBodyConstruction(body);
+      expect(result).toContain('metadata: {},');
+    });
+
+    it('generates array example values', () => {
+      const body: NormalizedRequestBody = {
+        required: true,
+        schemaName: 'Payload',
+        schema: {
+          type: 'object',
+          properties: {
+            tags: { type: 'array', items: { type: 'string' } },
+            ids: { type: 'array', items: { type: 'integer' } },
+          },
+          required: ['tags', 'ids'],
+        },
+      };
+      const result = adapter.buildBodyConstruction(body);
+      expect(result).toContain('tags: ["item_value"],');
+      expect(result).toContain('ids: [0],');
+    });
+
+    it('wraps string overrides in quotes, leaves others raw', () => {
       const body: NormalizedRequestBody = {
         required: true,
         schemaName: 'CreatePetRequest',
@@ -312,13 +394,15 @@ describe('typescript adapter', () => {
           type: 'object',
           properties: {
             name: { type: 'string' },
+            count: { type: 'integer' },
             tag: { type: 'string' },
           },
-          required: ['name', 'tag'],
+          required: ['name', 'count', 'tag'],
         },
       };
-      const result = adapter.buildBodyConstruction(body, { name: '{{name}}' });
-      expect(result).toContain('name: {{name}},');
+      const result = adapter.buildBodyConstruction(body, { name: '$name', count: '$count' });
+      expect(result).toContain('name: "$name",');
+      expect(result).toContain('count: $count,');
       expect(result).toContain('tag: "tag_value",');
     });
   });
@@ -415,7 +499,7 @@ describe('typescript adapter', () => {
 
     beforeAll(() => {
       outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'oage-ts-wrapper-'));
-      const configPath = path.resolve(__dirname, '..', 'examples', 'typescript.config.yml');
+      const configPath = path.resolve(__dirname, '..', 'examples', 'typescript', 'typescript.config.yml');
       const config = loadConfig(configPath);
 
       generate({
@@ -485,9 +569,9 @@ describe('typescript adapter', () => {
       outputDir = fs.mkdtempSync(path.join(os.tmpdir(), 'oage-ts-overrides-'));
       const config = loadConfigOrDefault();
       config.paramOverrides = {
-        global: { petId: '{{petId}}' },
-        tags: { Pets: { status: '{{status}}' } },
-        operations: { createPet: { name: '{{name}}' } },
+        global: { petId: '$petId' },
+        tags: { Pets: { status: '$status' } },
+        operations: { createPet: { name: '$name' } },
       };
 
       generate({
@@ -498,28 +582,28 @@ describe('typescript adapter', () => {
       });
     });
 
-    it('applies global override to petId', () => {
+    it('applies global override to petId (string type, quoted)', () => {
       const content = fs.readFileSync(
         path.join(outputDir, 'usage', 'typescript', 'pets', 'getPetById.md'),
         'utf-8',
       );
-      expect(content).toContain('let petId: string = {{petId}};');
+      expect(content).toContain('let petId: string = "$petId";');
     });
 
-    it('applies tag-level override to status', () => {
+    it('applies tag-level override to status (string type, quoted)', () => {
       const content = fs.readFileSync(
         path.join(outputDir, 'usage', 'typescript', 'pets', 'findPetsByStatus.md'),
         'utf-8',
       );
-      expect(content).toContain('let status: string = {{status}};');
+      expect(content).toContain('let status: string = "$status";');
     });
 
-    it('applies operation-level override to body property', () => {
+    it('applies operation-level override to body property (string, quoted)', () => {
       const content = fs.readFileSync(
         path.join(outputDir, 'usage', 'typescript', 'pets', 'createPet.md'),
         'utf-8',
       );
-      expect(content).toContain('name: {{name}},');
+      expect(content).toContain('name: "$name",');
     });
 
     it('does not override params without matching rules', () => {
@@ -527,8 +611,7 @@ describe('typescript adapter', () => {
         path.join(outputDir, 'usage', 'typescript', 'pets', 'listPets.md'),
         'utf-8',
       );
-      // listPets has no required params, so no declarations to override
-      expect(content).not.toContain('{{');
+      expect(content).not.toContain('$');
     });
   });
 
@@ -590,6 +673,17 @@ describe('typescript adapter', () => {
       );
       const data = JSON.parse(raw);
       expect(data.requestBody).toBeUndefined();
+    });
+
+    it('writes an index.json containing all operations', () => {
+      const indexPath = path.join(outputDir, 'usage', 'typescript', 'index.json');
+      expect(fs.existsSync(indexPath)).toBe(true);
+      const data = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+      expect(data).toHaveLength(7);
+      const ids = data.map((e: { operationId: string }) => e.operationId);
+      expect(ids).toContain('getPetById');
+      expect(ids).toContain('listPets');
+      expect(ids).toContain('getInventory');
     });
   });
 
