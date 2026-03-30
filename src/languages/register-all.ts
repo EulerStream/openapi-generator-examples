@@ -6,7 +6,8 @@
  */
 
 import './typescript.js';
-// import './python.js';
-// import './java.js';
-// import './csharp.js';
-// import './go.js';
+import './python.js';
+import './java.js';
+import './csharp.js';
+import './go.js';
+import './curl.js';

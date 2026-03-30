@@ -1,0 +1,18 @@
+{{#boilerplate.showImports}}
+import {{{variables.sdkPackage}}}.{{apiClassName}};
+import {{{variables.sdkPackage}}}.ApiClient;
+import {{{variables.sdkPackage}}}.Configuration;
+
+{{/boilerplate.showImports}}
+ApiClient defaultClient = Configuration.getDefaultApiClient();
+{{apiClassName}} {{variables.clientVar}} = new {{apiClassName}}(defaultClient);
+
+{{#hasRequiredParams}}
+{{{paramDeclarations}}}
+
+{{/hasRequiredParams}}
+{{#hasBody}}
+{{{bodyConstruction}}}
+
+{{/hasBody}}
+{{{resultLine}}}

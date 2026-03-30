@@ -1,0 +1,19 @@
+{{#boilerplate.showImports}}
+import (
+	"context"
+	openapiclient "{{{variables.sdkPackage}}}"
+)
+
+{{/boilerplate.showImports}}
+configuration := openapiclient.NewConfiguration()
+apiClient := openapiclient.NewAPIClient(configuration)
+
+{{#hasRequiredParams}}
+{{{paramDeclarations}}}
+
+{{/hasRequiredParams}}
+{{#hasBody}}
+{{{bodyConstruction}}}
+
+{{/hasBody}}
+{{{resultLine}}}

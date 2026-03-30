@@ -1,0 +1,4 @@
+curl -X {{httpMethod}} "{{{variables.baseUrl}}}{{{path}}}{{{methodCall}}}"{{#variables.authHeader}} \
+  -H "{{variables.authHeader}}: {{variables.authValue}}"{{/variables.authHeader}}{{#hasBody}} \
+  -H "Content-Type: application/json" \
+{{{bodyConstruction}}}{{/hasBody}}

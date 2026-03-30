@@ -1,0 +1,16 @@
+{{#boilerplate.showImports}}
+using {{{variables.sdkPackage}}};
+
+{{/boilerplate.showImports}}
+Configuration config = new Configuration();
+{{apiClassName}} {{variables.clientVar}} = new {{apiClassName}}(config);
+
+{{#hasRequiredParams}}
+{{{paramDeclarations}}}
+
+{{/hasRequiredParams}}
+{{#hasBody}}
+{{{bodyConstruction}}}
+
+{{/hasBody}}
+{{{resultLine}}}
