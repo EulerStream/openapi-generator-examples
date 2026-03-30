@@ -1,0 +1,21 @@
+boilerplate:
+  showImports: true
+
+variables:
+  sdkImport: |
+    import (
+    	"context"
+    	eulerstream "github.com/EulerStream/Euler-Api-Sdk/sdk/go"
+    )
+  clientConstruction: |
+    client := eulerstream.NewEulerStreamClient(
+    	eulerstream.WithAPIKey("YOUR_API_KEY"),
+    )
+  clientVar: client
+  apiAccessPattern: dot
+
+templatePath: examples/go/go-wrapper.mustache
+
+apiClassMap:
+  Pets: Pets
+  Store: Store

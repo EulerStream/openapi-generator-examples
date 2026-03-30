@@ -1,0 +1,11 @@
+boilerplate:
+  showImports: false
+
+variables:
+  baseUrl: "https://api.example.com"
+  authHeader: "X-API-Key"
+  authValue: "YOUR_API_KEY"
+
+outputFormats:
+  - md
+  - json

@@ -1,0 +1,17 @@
+boilerplate:
+  showImports: true
+
+variables:
+  sdkImport: "import io.github.isaackogan.EulerStreamApiClient;"
+  clientConstruction: |
+    EulerStreamApiClient client = EulerStreamApiClient.builder()
+        .apiKey("YOUR_API_KEY")
+        .build();
+  clientVar: client
+  apiAccessPattern: call
+
+templatePath: examples/java/java-wrapper.mustache
+
+apiClassMap:
+  Pets: pets
+  Store: store

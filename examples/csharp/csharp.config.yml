@@ -1,0 +1,19 @@
+boilerplate:
+  showImports: true
+
+variables:
+  sdkImport: |
+    using EulerApiSdk;
+    using EulerApiSdk.Client;
+  clientConstruction: |
+    var client = new EulerStreamApiClient(
+        host => host.AddTokens(new ApiKeyToken("YOUR_API_KEY", ClientUtils.ApiKeyHeader.ApiKey))
+    );
+  clientVar: client
+  apiAccessPattern: dot
+
+templatePath: examples/csharp/csharp-wrapper.mustache
+
+apiClassMap:
+  Pets: Pets
+  Store: Store

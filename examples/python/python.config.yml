@@ -1,0 +1,18 @@
+boilerplate:
+  showImports: true
+
+variables:
+  sdkImport: "from euler_api_sdk import AuthenticatedClient"
+  clientConstruction: |
+    client = AuthenticatedClient(
+        base_url="https://tiktok.eulerstream.com",
+        token="YOUR_API_KEY",
+    )
+  clientVar: client
+  apiAccessPattern: dot
+
+templatePath: examples/python/python-wrapper.mustache
+
+apiClassMap:
+  Pets: pets
+  Store: store

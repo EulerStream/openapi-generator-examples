@@ -7,7 +7,7 @@ variables:
   clientVar: client
   apiAccessPattern: dot
 
-templatePath: examples/typescript-wrapper.mustache
+templatePath: examples/typescript/typescript-wrapper.mustache
 
 apiClassMap:
   Pets: pets
