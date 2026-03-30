@@ -1,0 +1,8 @@
+src/
+test/
+tsconfig.json
+tsup.config.ts
+.gitignore
+.idea/
+coverage/
+*.tgz

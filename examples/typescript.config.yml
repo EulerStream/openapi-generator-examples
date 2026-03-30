@@ -1,0 +1,14 @@
+boilerplate:
+  showImports: true
+
+variables:
+  sdkImport: "import EulerStreamApiClient from '@eulerstream/euler-api-sdk'"
+  clientConstruction: "const client = new EulerStreamApiClient({ apiKey: 'YOUR_API_KEY' });"
+  clientVar: client
+  apiAccessPattern: dot
+
+templatePath: examples/typescript-wrapper.mustache
+
+apiClassMap:
+  Pets: pets
+  Store: store

@@ -1,0 +1,19 @@
+{{#boilerplate.showImports}}
+import {
+    {{apiClassName}},
+    Configuration,
+} from '{{{variables.sdkPackage}}}';
+
+{{/boilerplate.showImports}}
+const configuration = new Configuration();
+const {{variables.clientVar}} = new {{apiClassName}}(configuration);
+
+{{#hasRequiredParams}}
+{{{paramDeclarations}}}
+
+{{/hasRequiredParams}}
+{{#hasBody}}
+{{{bodyConstruction}}}
+
+{{/hasBody}}
+{{{resultLine}}}
