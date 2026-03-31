@@ -170,18 +170,20 @@ const typescriptAdapter: LanguageAdapter = {
   },
 
   buildParamDeclaration(param: NormalizedParam, valueOverride?: string, operationId?: string): string {
+    const varName = toCamelCase(param.name);
+
     // Enum parameters get their generated enum type and value
     if (param.schema.enum && param.schema.enum.length > 0 && operationId && !valueOverride) {
       const enumTypeName = buildEnumTypeName(operationId, param.name);
       const enumKey = enumKeyFromValue(param.schema.enum[0]);
-      return `let ${param.name}: ${enumTypeName} = ${enumTypeName}.${enumKey};`;
+      return `let ${varName}: ${enumTypeName} = ${enumTypeName}.${enumKey};`;
     }
 
     const tsType = this.mapType(param.schema);
     const value = valueOverride != null
       ? wrapOverrideForType(valueOverride, param.schema)
       : this.exampleValue(param);
-    return `let ${param.name}: ${tsType} = ${value};`;
+    return `let ${varName}: ${tsType} = ${value};`;
   },
 
   buildMethodCall(opts: MethodCallOptions): string {

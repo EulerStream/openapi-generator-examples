@@ -211,7 +211,7 @@ describe('python adapter', () => {
         required: true,
         schema: { type: 'string' },
       };
-      expect(adapter.buildParamDeclaration(param)).toBe('petId: str = "petId_value"');
+      expect(adapter.buildParamDeclaration(param)).toBe('pet_id: str = "petId_value"');
     });
 
     it('uses valueOverride as-is for non-string types', () => {
@@ -473,8 +473,8 @@ describe('python adapter', () => {
       expect(content).toContain('PetsApi');
       expect(content).toContain('Configuration');
       expect(content).toContain('apiInstance = PetsApi(configuration)');
-      expect(content).toContain('petId: str = "petId_value"');
-      expect(content).toContain('result = apiInstance.get_pet_by_id(petId)');
+      expect(content).toContain('pet_id: str = "petId_value"');
+      expect(content).toContain('result = apiInstance.get_pet_by_id(pet_id)');
     });
 
     it('uses direct method call pattern (no apiProperty chain)', () => {
@@ -500,7 +500,7 @@ describe('python adapter', () => {
         path.join(outputDir, 'usage', 'python', 'pets', 'delete_pet.md'),
         'utf-8',
       );
-      expect(content).toContain('result = apiInstance.delete_pet(petId)');
+      expect(content).toContain('result = apiInstance.delete_pet(pet_id)');
     });
 
     it('writes an index.md', () => {
@@ -549,8 +549,8 @@ describe('python adapter', () => {
       expect(content).toContain('```python');
       expect(content).toContain('from euler_api_sdk import AuthenticatedClient');
       expect(content).toContain('client = AuthenticatedClient(');
-      expect(content).toContain('petId: str = "petId_value"');
-      expect(content).toContain('result = client.pets.get_pet_by_id(petId)');
+      expect(content).toContain('pet_id: str = "petId_value"');
+      expect(content).toContain('result = client.pets.get_pet_by_id(pet_id)');
     });
 
     it('generates correct Python for deletePet (no return type)', () => {
@@ -558,7 +558,7 @@ describe('python adapter', () => {
         path.join(outputDir, 'usage', 'python', 'pets', 'delete_pet.md'),
         'utf-8',
       );
-      expect(content).toContain('result = client.pets.delete_pet(petId)');
+      expect(content).toContain('result = client.pets.delete_pet(pet_id)');
     });
 
     it('generates correct Python for createPet (with body)', () => {
@@ -604,7 +604,7 @@ describe('python adapter', () => {
         path.join(outputDir, 'usage', 'python', 'pets', 'get_pet_by_id.md'),
         'utf-8',
       );
-      expect(content).toContain('petId: str = "$petId"');
+      expect(content).toContain('pet_id: str = "$petId"');
     });
 
     it('applies tag-level override to status (string type, quoted)', () => {
@@ -665,7 +665,7 @@ describe('python adapter', () => {
       expect(data.httpMethod).toBe('GET');
       expect(data.path).toBe('/pets/{petId}');
       expect(data.codeBlockLang).toBe('python');
-      expect(data.example).toContain('apiInstance.get_pet_by_id(petId)');
+      expect(data.example).toContain('apiInstance.get_pet_by_id(pet_id)');
       expect(data.parameters).toHaveLength(1);
       expect(data.parameters[0].name).toBe('petId');
       expect(data.parameters[0].type).toBe('str');

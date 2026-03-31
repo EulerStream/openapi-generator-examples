@@ -162,7 +162,7 @@ const goAdapter: LanguageAdapter = {
     const value = valueOverride != null
       ? wrapOverrideForType(valueOverride, param.schema)
       : this.exampleValue(param);
-    return `${param.name} := ${value}`;
+    return `${toSnakeCase(param.name)} := ${value}`;
   },
 
   buildMethodCall(opts: MethodCallOptions): string {

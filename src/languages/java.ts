@@ -157,7 +157,7 @@ const javaAdapter: LanguageAdapter = {
     const value = valueOverride != null
       ? wrapOverrideForType(valueOverride, param.schema)
       : this.exampleValue(param);
-    return `${javaType} ${param.name} = ${value};`;
+    return `${javaType} ${toCamelCase(param.name)} = ${value};`;
   },
 
   buildMethodCall(opts: MethodCallOptions): string {

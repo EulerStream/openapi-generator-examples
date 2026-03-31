@@ -237,7 +237,7 @@ describe('csharp adapter', () => {
         required: true,
         schema: { type: 'integer' },
       };
-      expect(adapter.buildParamDeclaration(param, '$account_id')).toBe('int account_id = $account_id;');
+      expect(adapter.buildParamDeclaration(param, '$account_id')).toBe('int accountId = $account_id;');
     });
 
     it('wraps valueOverride in quotes for string types', () => {

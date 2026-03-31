@@ -88,13 +88,27 @@ export function buildTemplateContext(
     ? adapter.buildBodyConstruction(op.requestBody, bodyOverrides)
     : '';
 
-  // Build argument list for method call
+  // Build argument list for method call: required params, then body, then optional params
+  // Sanitize param names to match what buildParamDeclaration produces
+  const toVarName = (p: NormalizedParam): string => {
+    const decl = adapter.buildParamDeclaration(p, undefined, op.operationId);
+    // Extract identifier: skip keywords/types, find the var name before = or :=
+    const m = decl.match(/(?:^|\s)([a-zA-Z_]\w*)\s*(?:[:,=])/);
+    return m?.[1] ?? p.name;
+  };
+
   const argParts: string[] = [];
-  for (const p of op.parameters.filter(paramFilter)) {
-    argParts.push(p.name);
+  const visibleParams = op.parameters.filter(paramFilter);
+  for (const p of visibleParams.filter((p) => p.required)) {
+    argParts.push(toVarName(p));
   }
   if (hasBody) {
     argParts.push('body');
+  }
+  if (showOptional) {
+    for (const p of visibleParams.filter((p) => !p.required)) {
+      argParts.push(toVarName(p));
+    }
   }
   const args = argParts.join(', ');
 

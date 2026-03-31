@@ -241,7 +241,7 @@ describe('java adapter', () => {
         required: true,
         schema: { type: 'integer' },
       };
-      expect(adapter.buildParamDeclaration(param, '$account_id')).toBe('Integer account_id = $account_id;');
+      expect(adapter.buildParamDeclaration(param, '$account_id')).toBe('Integer accountId = $account_id;');
     });
 
     it('wraps valueOverride in quotes for string types', () => {

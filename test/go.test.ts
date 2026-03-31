@@ -214,7 +214,7 @@ describe('go adapter', () => {
         required: true,
         schema: { type: 'string' },
       };
-      expect(adapter.buildParamDeclaration(param)).toBe('petId := "petId_value"');
+      expect(adapter.buildParamDeclaration(param)).toBe('pet_id := "petId_value"');
     });
 
     it('uses valueOverride as-is for non-string types', () => {
@@ -461,8 +461,8 @@ describe('go adapter', () => {
       expect(content).toContain('NewConfiguration');
       expect(content).toContain('NewAPIClient');
       expect(content).toContain('"./api"');
-      expect(content).toContain('petId := "petId_value"');
-      expect(content).toContain('resp, r, err := apiInstance.GetPetById(context.Background(), petId).Execute()');
+      expect(content).toContain('pet_id := "petId_value"');
+      expect(content).toContain('resp, r, err := apiInstance.GetPetById(context.Background(), pet_id).Execute()');
     });
 
     it('uses direct method call pattern (no apiProperty chain)', () => {
@@ -489,7 +489,7 @@ describe('go adapter', () => {
         path.join(outputDir, 'usage', 'go', 'pets', 'delete_pet.md'),
         'utf-8',
       );
-      expect(content).toContain('resp, r, err := apiInstance.DeletePet(context.Background(), petId).Execute()');
+      expect(content).toContain('resp, r, err := apiInstance.DeletePet(context.Background(), pet_id).Execute()');
     });
 
     it('writes an index.md', () => {
@@ -538,8 +538,8 @@ describe('go adapter', () => {
       expect(content).toContain('```go');
       expect(content).toContain('eulerstream "github.com/EulerStream/Euler-Api-Sdk/sdk/go"');
       expect(content).toContain('eulerstream.NewEulerStreamClient');
-      expect(content).toContain('petId := "petId_value"');
-      expect(content).toContain('resp, r, err := client.Pets.GetPetById(context.Background(), petId).Execute()');
+      expect(content).toContain('pet_id := "petId_value"');
+      expect(content).toContain('resp, r, err := client.Pets.GetPetById(context.Background(), pet_id).Execute()');
     });
 
     it('generates correct Go for deletePet', () => {
@@ -547,7 +547,7 @@ describe('go adapter', () => {
         path.join(outputDir, 'usage', 'go', 'pets', 'delete_pet.md'),
         'utf-8',
       );
-      expect(content).toContain('resp, r, err := client.Pets.DeletePet(context.Background(), petId).Execute()');
+      expect(content).toContain('resp, r, err := client.Pets.DeletePet(context.Background(), pet_id).Execute()');
     });
 
     it('generates correct Go for createPet (with body)', () => {
@@ -593,7 +593,7 @@ describe('go adapter', () => {
         path.join(outputDir, 'usage', 'go', 'pets', 'get_pet_by_id.md'),
         'utf-8',
       );
-      expect(content).toContain('petId := "$petId"');
+      expect(content).toContain('pet_id := "$petId"');
     });
 
     it('applies tag-level override to status (string type, quoted)', () => {
@@ -654,7 +654,7 @@ describe('go adapter', () => {
       expect(data.httpMethod).toBe('GET');
       expect(data.path).toBe('/pets/{petId}');
       expect(data.codeBlockLang).toBe('go');
-      expect(data.example).toContain('apiInstance.GetPetById(context.Background(), petId).Execute()');
+      expect(data.example).toContain('apiInstance.GetPetById(context.Background(), pet_id).Execute()');
       expect(data.parameters).toHaveLength(1);
       expect(data.parameters[0].name).toBe('petId');
       expect(data.parameters[0].type).toBe('string');

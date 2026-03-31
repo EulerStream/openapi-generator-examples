@@ -154,7 +154,7 @@ const pythonAdapter: LanguageAdapter = {
     const value = valueOverride != null
       ? wrapOverrideForType(valueOverride, param.schema)
       : this.exampleValue(param);
-    return `${param.name}: ${pyType} = ${value}`;
+    return `${toSnakeCase(param.name)}: ${pyType} = ${value}`;
   },
 
   buildMethodCall(opts: MethodCallOptions): string {

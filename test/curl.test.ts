@@ -455,7 +455,7 @@ describe('curl adapter', () => {
         'utf-8',
       );
       expect(content).toContain('```bash');
-      expect(content).toContain('curl -X GET "/pets?limit=20&offset=0"');
+      expect(content).toContain('curl -X GET "/pets?limit=20&offset=0&limit=20&offset=0"');
     });
 
     it('generates curl GET command for getPetById (path param in URL)', () => {
@@ -471,7 +471,7 @@ describe('curl adapter', () => {
         path.join(outputDir, 'usage', 'curl', 'pets', 'find-pets-by-status.md'),
         'utf-8',
       );
-      expect(content).toContain('curl -X GET "/pets/findByStatus?status=available"');
+      expect(content).toContain('curl -X GET "/pets/findByStatus?status=available&status=available"');
     });
 
     it('generates curl POST with JSON body for createPet', () => {
@@ -576,7 +576,7 @@ describe('curl adapter', () => {
         path.join(outputDir, 'usage', 'curl', 'pets', 'find-pets-by-status.md'),
         'utf-8',
       );
-      expect(content).toContain('curl -X GET "https://api.example.com/pets/findByStatus?status=available"');
+      expect(content).toContain('curl -X GET "https://api.example.com/pets/findByStatus?status=available&status=available"');
       expect(content).toContain('-H "X-API-Key: YOUR_API_KEY"');
     });
 

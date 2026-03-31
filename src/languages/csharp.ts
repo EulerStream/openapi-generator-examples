@@ -2,6 +2,11 @@ import type { LanguageAdapter, MethodCallOptions } from './types.js';
 import type { NormalizedParam, NormalizedRequestBody, NormalizedSchema } from '../spec/types.js';
 import { registerLanguage } from './registry.js';
 
+function toCamelCase(str: string): string {
+  const pascal = toPascalCase(str);
+  return pascal.charAt(0).toLowerCase() + pascal.slice(1);
+}
+
 function toPascalCase(str: string): string {
   // If already camelCase/PascalCase, just uppercase the first char
   if (/^[a-zA-Z][a-zA-Z0-9]*$/.test(str)) {
@@ -159,7 +164,7 @@ const csharpAdapter: LanguageAdapter = {
     const value = valueOverride != null
       ? wrapOverrideForType(valueOverride, param.schema)
       : this.exampleValue(param);
-    return `${type} ${param.name} = ${value};`;
+    return `${type} ${toCamelCase(param.name)} = ${value};`;
   },
 
   buildMethodCall(opts: MethodCallOptions): string {
