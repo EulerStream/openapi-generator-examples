@@ -32,9 +32,10 @@ function toPascalCase(str: string): string {
     .replace(/^[a-z]/, (c) => c.toUpperCase());
 }
 
-function enumKeyFromValue(value: string): string {
+function enumKeyFromValue(value: unknown): string {
+  const str = String(value);
   // Convert SCREAMING_SNAKE_CASE to PascalCase: FANS_TEAM_RANK → FansTeamRank
-  return value
+  return str
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join('');
