@@ -78,7 +78,7 @@ describe('python-opc adapter', () => {
   });
 
   describe('buildMethodCall', () => {
-    it('builds module.sync() with keyword args and no positional args', () => {
+    it('builds module.asyncio() with keyword args and no positional args', () => {
       const result = adapter.buildMethodCall({
         clientVar: 'client',
         apiProperty: 'pets',
@@ -86,10 +86,10 @@ describe('python-opc adapter', () => {
         args: '',
         apiAccessPattern: 'dot',
       });
-      expect(result).toBe('list_pets.sync(client=client)');
+      expect(result).toBe('await list_pets.asyncio(client=client)');
     });
 
-    it('builds module.sync() with keyword args', () => {
+    it('builds module.asyncio() with keyword args', () => {
       const result = adapter.buildMethodCall({
         clientVar: 'client',
         apiProperty: 'pets',
@@ -97,7 +97,7 @@ describe('python-opc adapter', () => {
         args: 'petId',
         apiAccessPattern: 'dot',
       });
-      expect(result).toBe('get_pet_by_id.sync(client=client, pet_id=pet_id)');
+      expect(result).toBe('await get_pet_by_id.asyncio(client=client, pet_id=pet_id)');
     });
 
     it('converts body arg to keyword', () => {
@@ -108,7 +108,7 @@ describe('python-opc adapter', () => {
         args: 'body',
         apiAccessPattern: 'dot',
       });
-      expect(result).toBe('create_pet.sync(client=client, body=body)');
+      expect(result).toBe('await create_pet.asyncio(client=client, body=body)');
     });
 
     it('handles multiple args', () => {
@@ -119,7 +119,7 @@ describe('python-opc adapter', () => {
         args: 'account_id, body',
         apiAccessPattern: 'dot',
       });
-      expect(result).toBe('create_alert.sync(client=client, account_id=account_id, body=body)');
+      expect(result).toBe('await create_alert.asyncio(client=client, account_id=account_id, body=body)');
     });
 
     it('ignores apiAccessPattern (always module-based)', () => {
@@ -130,7 +130,7 @@ describe('python-opc adapter', () => {
         args: '',
         apiAccessPattern: 'direct',
       });
-      expect(result).toBe('list_pets.sync(client=client)');
+      expect(result).toBe('await list_pets.asyncio(client=client)');
     });
   });
 
@@ -152,6 +152,25 @@ describe('python-opc adapter', () => {
       expect(result).toContain('body = CreatePetRequest(');
       expect(result).toContain('name="name_value"');
       expect(result).not.toContain('tag=');
+    });
+
+    it('uses dict syntax with colons when schemaName is absent', () => {
+      const body: NormalizedRequestBody = {
+        required: true,
+        schema: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+            count: { type: 'integer' },
+          },
+          required: ['name', 'count'],
+        },
+      };
+      const result = adapter.buildBodyConstruction(body);
+      expect(result).toContain('body = {');
+      expect(result).toContain('"name": "name_value"');
+      expect(result).toContain('"count": 0');
+      expect(result).not.toContain('name=');
     });
 
     it('converts camelCase properties to snake_case', () => {
@@ -177,8 +196,8 @@ describe('python-opc adapter', () => {
 
   describe('buildResultLine', () => {
     it('generates result assignment', () => {
-      const result = adapter.buildResultLine('list_pets.sync(client=client)', 'list[Pet]');
-      expect(result).toBe('result = list_pets.sync(client=client)');
+      const result = adapter.buildResultLine('await list_pets.asyncio(client=client)', 'list[Pet]');
+      expect(result).toBe('result = await list_pets.asyncio(client=client)');
     });
   });
 
@@ -216,7 +235,7 @@ describe('python-opc adapter', () => {
       expect(content).toContain('from ./api.api.pets import get_pet_by_id');
       expect(content).toContain('AuthenticatedClient');
       expect(content).toContain('pet_id: str = "petId_value"');
-      expect(content).toContain('result = get_pet_by_id.sync(client=apiInstance, pet_id=pet_id)');
+      expect(content).toContain('result = await get_pet_by_id.asyncio(client=apiInstance, pet_id=pet_id)');
     });
 
     it('generates correct output for listPets (no params)', () => {
@@ -224,7 +243,7 @@ describe('python-opc adapter', () => {
         path.join(outputDir, 'usage', 'python-opc', 'pets', 'list_pets.md'),
         'utf-8',
       );
-      expect(content).toContain('result = list_pets.sync(client=apiInstance)');
+      expect(content).toContain('result = await list_pets.asyncio(client=apiInstance)');
     });
 
     it('generates correct output for createPet (with body)', () => {
@@ -234,7 +253,7 @@ describe('python-opc adapter', () => {
       );
       expect(content).toContain('body = CreatePetRequest(');
       expect(content).toContain('name="name_value"');
-      expect(content).toContain('result = create_pet.sync(client=apiInstance, body=body)');
+      expect(content).toContain('result = await create_pet.asyncio(client=apiInstance, body=body)');
     });
 
     it('writes an index.md', () => {
@@ -269,7 +288,7 @@ describe('python-opc adapter', () => {
       const data = JSON.parse(raw);
       expect(data.operationId).toBe('getPetById');
       expect(data.codeBlockLang).toBe('python');
-      expect(data.example).toContain('get_pet_by_id.sync(client=apiInstance, pet_id=pet_id)');
+      expect(data.example).toContain('await get_pet_by_id.asyncio(client=apiInstance, pet_id=pet_id)');
     });
   });
 });

@@ -120,9 +120,15 @@ function buildObjectLiteral(
     return schemaName ? `${schemaName}()` : '{}';
   }
 
-  const opener = schemaName ? `${schemaName}(\n` : '{\n';
-  const closer = schemaName ? `${closingIndent})` : `${closingIndent}}`;
-  return opener + entries.join('\n') + '\n' + closer;
+  if (schemaName) {
+    return `${schemaName}(\n` + entries.join('\n') + '\n' + `${closingIndent})`;
+  }
+
+  // Dict fallback: convert field=value to "field": value
+  const dictEntries = entries.map((e) =>
+    e.replace(/^(\s*)(\w+)=(.+),\s*$/, '$1"$2": $3,'),
+  );
+  return '{\n' + dictEntries.join('\n') + '\n' + `${closingIndent}}`;
 }
 
 const pythonOpcAdapter: LanguageAdapter = {
@@ -175,7 +181,7 @@ const pythonOpcAdapter: LanguageAdapter = {
         kwargParts.push(`${snaked}=${snaked}`);
       }
     }
-    return `${methodName}.sync(${kwargParts.join(', ')})`;
+    return `await ${methodName}.asyncio(${kwargParts.join(', ')})`;
   },
 
   buildBodyConstruction(body: NormalizedRequestBody, valueOverrides?: Record<string, string>): string {
