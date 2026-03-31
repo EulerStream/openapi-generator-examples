@@ -249,7 +249,7 @@ describe('go adapter', () => {
   });
 
   describe('buildMethodCall', () => {
-    it('builds direct access pattern', () => {
+    it('builds direct access pattern with context and Execute', () => {
       const result = adapter.buildMethodCall({
         clientVar: 'apiInstance',
         apiProperty: 'pets',
@@ -257,10 +257,10 @@ describe('go adapter', () => {
         args: '',
         apiAccessPattern: 'direct',
       });
-      expect(result).toBe('apiInstance.ListPets()');
+      expect(result).toBe('apiInstance.ListPets(context.Background()).Execute()');
     });
 
-    it('builds dot access pattern', () => {
+    it('builds dot access pattern with context and Execute', () => {
       const result = adapter.buildMethodCall({
         clientVar: 'client',
         apiProperty: 'Pets',
@@ -268,10 +268,10 @@ describe('go adapter', () => {
         args: '',
         apiAccessPattern: 'dot',
       });
-      expect(result).toBe('client.Pets.ListPets()');
+      expect(result).toBe('client.Pets.ListPets(context.Background()).Execute()');
     });
 
-    it('builds call access pattern', () => {
+    it('builds call access pattern with context and Execute', () => {
       const result = adapter.buildMethodCall({
         clientVar: 'client',
         apiProperty: 'Pets',
@@ -279,10 +279,10 @@ describe('go adapter', () => {
         args: 'petId',
         apiAccessPattern: 'call',
       });
-      expect(result).toBe('client.Pets().GetPetById(petId)');
+      expect(result).toBe('client.Pets().GetPetById(context.Background(), petId).Execute()');
     });
 
-    it('includes args', () => {
+    it('includes args after context', () => {
       const result = adapter.buildMethodCall({
         clientVar: 'sdk',
         apiProperty: 'Store',
@@ -290,7 +290,7 @@ describe('go adapter', () => {
         args: 'limit, offset',
         apiAccessPattern: 'dot',
       });
-      expect(result).toBe('sdk.Store.GetInventory(limit, offset)');
+      expect(result).toBe('sdk.Store.GetInventory(context.Background(), limit, offset).Execute()');
     });
   });
 
@@ -462,7 +462,7 @@ describe('go adapter', () => {
       expect(content).toContain('NewAPIClient');
       expect(content).toContain('"./api"');
       expect(content).toContain('petId := "petId_value"');
-      expect(content).toContain('resp, r, err := apiInstance.GetPetById(petId)');
+      expect(content).toContain('resp, r, err := apiInstance.GetPetById(context.Background(), petId).Execute()');
     });
 
     it('uses direct method call pattern (no apiProperty chain)', () => {
@@ -472,7 +472,7 @@ describe('go adapter', () => {
       );
       expect(content).not.toContain('.pets.');
       expect(content).not.toContain('.Pets.');
-      expect(content).toContain('apiInstance.ListPets()');
+      expect(content).toContain('apiInstance.ListPets(context.Background()).Execute()');
     });
 
     it('generates correct output for Store tag', () => {
@@ -489,7 +489,7 @@ describe('go adapter', () => {
         path.join(outputDir, 'usage', 'go', 'pets', 'delete_pet.md'),
         'utf-8',
       );
-      expect(content).toContain('resp, r, err := apiInstance.DeletePet(petId)');
+      expect(content).toContain('resp, r, err := apiInstance.DeletePet(context.Background(), petId).Execute()');
     });
 
     it('writes an index.md', () => {
@@ -539,7 +539,7 @@ describe('go adapter', () => {
       expect(content).toContain('eulerstream "github.com/EulerStream/Euler-Api-Sdk/sdk/go"');
       expect(content).toContain('eulerstream.NewEulerStreamClient');
       expect(content).toContain('petId := "petId_value"');
-      expect(content).toContain('resp, r, err := client.Pets.GetPetById(petId)');
+      expect(content).toContain('resp, r, err := client.Pets.GetPetById(context.Background(), petId).Execute()');
     });
 
     it('generates correct Go for deletePet', () => {
@@ -547,7 +547,7 @@ describe('go adapter', () => {
         path.join(outputDir, 'usage', 'go', 'pets', 'delete_pet.md'),
         'utf-8',
       );
-      expect(content).toContain('resp, r, err := client.Pets.DeletePet(petId)');
+      expect(content).toContain('resp, r, err := client.Pets.DeletePet(context.Background(), petId).Execute()');
     });
 
     it('generates correct Go for createPet (with body)', () => {
@@ -654,7 +654,7 @@ describe('go adapter', () => {
       expect(data.httpMethod).toBe('GET');
       expect(data.path).toBe('/pets/{petId}');
       expect(data.codeBlockLang).toBe('go');
-      expect(data.example).toContain('apiInstance.GetPetById(petId)');
+      expect(data.example).toContain('apiInstance.GetPetById(context.Background(), petId).Execute()');
       expect(data.parameters).toHaveLength(1);
       expect(data.parameters[0].name).toBe('petId');
       expect(data.parameters[0].type).toBe('string');

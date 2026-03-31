@@ -127,7 +127,7 @@ const csharpAdapter: LanguageAdapter = {
   codeBlockLang: 'csharp',
 
   toMethodName(operationId: string): string {
-    return toPascalCase(operationId);
+    return toPascalCase(operationId) + 'Async';
   },
 
   toFileName(operationId: string): string {
@@ -181,9 +181,9 @@ const csharpAdapter: LanguageAdapter = {
 
   buildResultLine(call: string, returnType: string | undefined): string {
     if (returnType) {
-      return `${returnType} result = ${call};`;
+      return `var result = await ${call};`;
     }
-    return `${call};`;
+    return `await ${call};`;
   },
 };
 

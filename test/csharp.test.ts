@@ -23,16 +23,16 @@ describe('csharp adapter', () => {
   });
 
   describe('toMethodName', () => {
-    it('converts camelCase to PascalCase', () => {
-      expect(adapter.toMethodName('listPets')).toBe('ListPets');
+    it('converts camelCase to PascalCase with Async suffix', () => {
+      expect(adapter.toMethodName('listPets')).toBe('ListPetsAsync');
     });
 
-    it('keeps PascalCase as-is', () => {
-      expect(adapter.toMethodName('GetPetById')).toBe('GetPetById');
+    it('keeps PascalCase and adds Async suffix', () => {
+      expect(adapter.toMethodName('GetPetById')).toBe('GetPetByIdAsync');
     });
 
-    it('converts kebab-case to PascalCase', () => {
-      expect(adapter.toMethodName('list-pets')).toBe('ListPets');
+    it('converts kebab-case to PascalCase with Async suffix', () => {
+      expect(adapter.toMethodName('list-pets')).toBe('ListPetsAsync');
     });
   });
 
@@ -428,14 +428,14 @@ describe('csharp adapter', () => {
   });
 
   describe('buildResultLine', () => {
-    it('generates typed assignment when return type exists', () => {
-      const result = adapter.buildResultLine('apiInstance.GetPetById(petId)', 'Pet');
-      expect(result).toBe('Pet result = apiInstance.GetPetById(petId);');
+    it('generates await assignment when return type exists', () => {
+      const result = adapter.buildResultLine('apiInstance.GetPetByIdAsync(petId)', 'Pet');
+      expect(result).toBe('var result = await apiInstance.GetPetByIdAsync(petId);');
     });
 
-    it('generates call-only when no return type', () => {
-      const result = adapter.buildResultLine('apiInstance.DeletePet(petId)', undefined);
-      expect(result).toBe('apiInstance.DeletePet(petId);');
+    it('generates await call-only when no return type', () => {
+      const result = adapter.buildResultLine('apiInstance.DeletePetAsync(petId)', undefined);
+      expect(result).toBe('await apiInstance.DeletePetAsync(petId);');
     });
   });
 
@@ -475,7 +475,7 @@ describe('csharp adapter', () => {
       expect(content).toContain('using ./api');
       expect(content).toContain('PetsApi apiInstance = new PetsApi(config);');
       expect(content).toContain('string petId = "petId_value";');
-      expect(content).toContain('Pet result = apiInstance.GetPetById(petId);');
+      expect(content).toContain('var result = await apiInstance.GetPetByIdAsync(petId);');
     });
 
     it('uses direct method call pattern (no apiProperty chain)', () => {
@@ -484,7 +484,7 @@ describe('csharp adapter', () => {
         'utf-8',
       );
       expect(content).not.toContain('.pets.');
-      expect(content).toContain('apiInstance.ListPets()');
+      expect(content).toContain('apiInstance.ListPetsAsync()');
     });
 
     it('generates correct output for Store tag', () => {
@@ -501,8 +501,8 @@ describe('csharp adapter', () => {
         path.join(outputDir, 'usage', 'csharp', 'Pets', 'DeletePet.md'),
         'utf-8',
       );
-      expect(content).toContain('apiInstance.DeletePet(petId);');
-      expect(content).not.toContain('result =');
+      expect(content).toContain('await apiInstance.DeletePetAsync(petId);');
+      expect(content).not.toContain('var result =');
     });
 
     it('writes an index.md', () => {
@@ -552,7 +552,7 @@ describe('csharp adapter', () => {
       expect(content).toContain('using EulerApiSdk;');
       expect(content).toContain('new EulerStreamApiClient');
       expect(content).toContain('string petId = "petId_value";');
-      expect(content).toContain('Pet result = client.Pets.GetPetById(petId);');
+      expect(content).toContain('var result = await client.Pets.GetPetByIdAsync(petId);');
     });
 
     it('generates correct C# for deletePet (no return type)', () => {
@@ -560,8 +560,8 @@ describe('csharp adapter', () => {
         path.join(outputDir, 'usage', 'csharp', 'Pets', 'DeletePet.md'),
         'utf-8',
       );
-      expect(content).toContain('client.Pets.DeletePet(petId);');
-      expect(content).not.toContain('result =');
+      expect(content).toContain('await client.Pets.DeletePetAsync(petId);');
+      expect(content).not.toContain('var result =');
     });
 
     it('generates correct C# for createPet (with body)', () => {
@@ -668,7 +668,7 @@ describe('csharp adapter', () => {
       expect(data.httpMethod).toBe('GET');
       expect(data.path).toBe('/pets/{petId}');
       expect(data.codeBlockLang).toBe('csharp');
-      expect(data.example).toContain('apiInstance.GetPetById(petId)');
+      expect(data.example).toContain('apiInstance.GetPetByIdAsync(petId)');
       expect(data.parameters).toHaveLength(1);
       expect(data.parameters[0].name).toBe('petId');
       expect(data.parameters[0].type).toBe('string');

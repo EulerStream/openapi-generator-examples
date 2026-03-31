@@ -167,13 +167,16 @@ const goAdapter: LanguageAdapter = {
 
   buildMethodCall(opts: MethodCallOptions): string {
     const { clientVar, apiProperty, methodName, args, apiAccessPattern } = opts;
+    const ctxArgs = args ? `context.Background(), ${args}` : 'context.Background()';
+    let call: string;
     if (apiAccessPattern === 'direct') {
-      return `${clientVar}.${methodName}(${args})`;
+      call = `${clientVar}.${methodName}(${ctxArgs})`;
+    } else if (apiAccessPattern === 'call') {
+      call = `${clientVar}.${apiProperty}().${methodName}(${ctxArgs})`;
+    } else {
+      call = `${clientVar}.${apiProperty}.${methodName}(${ctxArgs})`;
     }
-    if (apiAccessPattern === 'call') {
-      return `${clientVar}.${apiProperty}().${methodName}(${args})`;
-    }
-    return `${clientVar}.${apiProperty}.${methodName}(${args})`;
+    return `${call}.Execute()`;
   },
 
   buildBodyConstruction(body: NormalizedRequestBody, valueOverrides?: Record<string, string>): string {
