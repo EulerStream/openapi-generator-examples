@@ -36,7 +36,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/EulerStream/openapi-generator-examples"
+    "url": "git+https://github.com/EulerStream/openapi-generator-examples.git"
   },
   "author": "EulerStream",
   "license": "GPL-3.0",
