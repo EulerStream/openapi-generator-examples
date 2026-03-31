@@ -21,6 +21,29 @@ function toKebabCase(str: string): string {
     .replace(/^-|-$/g, '');
 }
 
+function toPascalCase(str: string): string {
+  if (/^[A-Z][a-zA-Z0-9]*$/.test(str)) return str;
+  if (/^[a-zA-Z][a-zA-Z0-9]*$/.test(str)) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+  return str
+    .replace(/[^a-zA-Z0-9]+(.)/g, (_, c: string) => c.toUpperCase())
+    .replace(/[^a-zA-Z0-9]+/g, '')
+    .replace(/^[a-z]/, (c) => c.toUpperCase());
+}
+
+function enumKeyFromValue(value: string): string {
+  // Convert SCREAMING_SNAKE_CASE to PascalCase: FANS_TEAM_RANK → FansTeamRank
+  return value
+    .split('_')
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join('');
+}
+
+function buildEnumTypeName(operationId: string, paramName: string): string {
+  return toPascalCase(operationId) + toPascalCase(paramName) + 'Enum';
+}
+
 function wrapOverrideForType(override: string, schema: NormalizedSchema): string {
   if (schema.type === 'string' && !(schema.format === 'date' || schema.format === 'date-time')) {
     return `"${override}"`;
@@ -145,7 +168,14 @@ const typescriptAdapter: LanguageAdapter = {
     return exampleValueForSchema(param.schema, param.name);
   },
 
-  buildParamDeclaration(param: NormalizedParam, valueOverride?: string): string {
+  buildParamDeclaration(param: NormalizedParam, valueOverride?: string, operationId?: string): string {
+    // Enum parameters get their generated enum type and value
+    if (param.schema.enum && param.schema.enum.length > 0 && operationId && !valueOverride) {
+      const enumTypeName = buildEnumTypeName(operationId, param.name);
+      const enumKey = enumKeyFromValue(param.schema.enum[0]);
+      return `let ${param.name}: ${enumTypeName} = ${enumTypeName}.${enumKey};`;
+    }
+
     const tsType = this.mapType(param.schema);
     const value = valueOverride != null
       ? wrapOverrideForType(valueOverride, param.schema)

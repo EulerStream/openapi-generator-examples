@@ -72,7 +72,7 @@ export function buildTemplateContext(
     .filter((p) => !p.deprecated && p.required)
     .map((p) => {
       const override = resolveValueOverride(p.name, op.operationId, op.tag, config);
-      return adapter.buildParamDeclaration(p, override);
+      return adapter.buildParamDeclaration(p, override, op.operationId);
     })
     .filter(Boolean)
     .join('\n');

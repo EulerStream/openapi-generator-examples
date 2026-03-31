@@ -557,7 +557,7 @@ describe('typescript adapter', () => {
         path.join(outputDir, 'usage', 'typescript', 'pets', 'findPetsByStatus.md'),
         'utf-8',
       );
-      expect(content).toContain('let status: string = "available";');
+      expect(content).toContain('let status: FindPetsByStatusStatusEnum = FindPetsByStatusStatusEnum.Available;');
     });
   });
 

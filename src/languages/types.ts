@@ -37,7 +37,7 @@ export interface LanguageAdapter {
   exampleValue(param: NormalizedParam): string;
 
   /** Generate parameter declaration code. If valueOverride is provided, use it as-is (raw code). */
-  buildParamDeclaration(param: NormalizedParam, valueOverride?: string): string;
+  buildParamDeclaration(param: NormalizedParam, valueOverride?: string, operationId?: string): string;
 
   /** Generate the method call expression */
   buildMethodCall(opts: MethodCallOptions): string;
