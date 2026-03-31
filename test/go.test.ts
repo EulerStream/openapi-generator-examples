@@ -472,7 +472,7 @@ describe('go adapter', () => {
       );
       expect(content).not.toContain('.pets.');
       expect(content).not.toContain('.Pets.');
-      expect(content).toContain('apiInstance.ListPets(context.Background()).Execute()');
+      expect(content).toContain('apiInstance.ListPets(context.Background(), limit, offset).Execute()');
     });
 
     it('generates correct output for Store tag', () => {

@@ -455,7 +455,7 @@ describe('curl adapter', () => {
         'utf-8',
       );
       expect(content).toContain('```bash');
-      expect(content).toContain('curl -X GET "/pets"');
+      expect(content).toContain('curl -X GET "/pets?limit=20&offset=0"');
     });
 
     it('generates curl GET command for getPetById (path param in URL)', () => {

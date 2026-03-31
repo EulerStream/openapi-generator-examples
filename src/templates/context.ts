@@ -68,8 +68,11 @@ export function buildTemplateContext(
   const optionalParams = params.filter((p) => !p.required);
 
   // Build parameter declarations
+  const showOptional = config.showOptionalParams ?? true;
+  const paramFilter = (p: NormalizedParam) => !p.deprecated && (p.required || showOptional);
+
   const paramDeclarations = op.parameters
-    .filter((p) => !p.deprecated && p.required)
+    .filter(paramFilter)
     .map((p) => {
       const override = resolveValueOverride(p.name, op.operationId, op.tag, config);
       return adapter.buildParamDeclaration(p, override, op.operationId);
@@ -87,7 +90,7 @@ export function buildTemplateContext(
 
   // Build argument list for method call
   const argParts: string[] = [];
-  for (const p of op.parameters.filter((p) => !p.deprecated && p.required)) {
+  for (const p of op.parameters.filter(paramFilter)) {
     argParts.push(p.name);
   }
   if (hasBody) {
@@ -122,7 +125,7 @@ export function buildTemplateContext(
     hasParams: params.length > 0,
     requiredParams,
     optionalParams,
-    hasRequiredParams: requiredParams.length > 0,
+    hasRequiredParams: requiredParams.length > 0 || (showOptional && optionalParams.length > 0),
     hasOptionalParams: optionalParams.length > 0,
 
     hasBody,

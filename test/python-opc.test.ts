@@ -243,7 +243,7 @@ describe('python-opc adapter', () => {
         path.join(outputDir, 'usage', 'python-opc', 'pets', 'list_pets.md'),
         'utf-8',
       );
-      expect(content).toContain('result = await list_pets.asyncio(client=apiInstance)');
+      expect(content).toContain('result = await list_pets.asyncio(client=apiInstance, limit=limit, offset=offset)');
     });
 
     it('generates correct output for createPet (with body)', () => {

@@ -483,7 +483,7 @@ describe('python adapter', () => {
         'utf-8',
       );
       expect(content).not.toContain('.pets.');
-      expect(content).toContain('apiInstance.list_pets()');
+      expect(content).toContain('apiInstance.list_pets(limit, offset)');
     });
 
     it('generates correct output for Store tag', () => {

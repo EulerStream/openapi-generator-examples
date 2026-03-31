@@ -442,7 +442,7 @@ describe('java adapter', () => {
         'utf-8',
       );
       expect(content).not.toContain('.pets.');
-      expect(content).toContain('apiInstance.listPets()');
+      expect(content).toContain('apiInstance.listPets(limit, offset)');
     });
 
     it('generates correct output for Store tag', () => {

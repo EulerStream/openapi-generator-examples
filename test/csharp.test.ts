@@ -484,7 +484,7 @@ describe('csharp adapter', () => {
         'utf-8',
       );
       expect(content).not.toContain('.pets.');
-      expect(content).toContain('apiInstance.ListPetsAsync()');
+      expect(content).toContain('apiInstance.ListPetsAsync(limit, offset)');
     });
 
     it('generates correct output for Store tag', () => {

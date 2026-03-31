@@ -43,6 +43,9 @@ export const ExamplesConfigSchema = z.object({
   /** Output formats: "md" (markdown), "json", or both. Default: ["md"] */
   outputFormats: z.array(z.enum(['md', 'json'])).default(['md']),
 
+  /** Whether to include optional parameters in generated examples. Default: true */
+  showOptionalParams: z.boolean().default(true),
+
   /**
    * Override example values for parameters and body properties.
    * Values are raw code strings used as-is (no quoting/processing).
