@@ -86,7 +86,14 @@ function normalizeRequestBody(
   const jsonContent = content['application/json'] ?? Object.values(content)[0];
   if (!jsonContent?.schema) return undefined;
 
-  const rawSchema = jsonContent.schema as Record<string, unknown>;
+  let rawSchema = jsonContent.schema as Record<string, unknown>;
+
+  // For oneOf/anyOf unions, pick the first option
+  const unionOptions = (rawSchema.oneOf ?? rawSchema.anyOf) as Record<string, unknown>[] | undefined;
+  if (unionOptions && unionOptions.length > 0) {
+    rawSchema = unionOptions[0];
+  }
+
   const schemaName = extractRefName(rawSchema);
   const resolvedSchema = resolveRef(rawSchema, spec) as Record<string, unknown>;
 
@@ -101,7 +108,13 @@ function normalizeSchema(
   schema: Record<string, unknown>,
   spec: OpenAPISpec,
 ): NormalizedSchema {
-  const resolved = resolveRef(schema, spec) as Record<string, unknown>;
+  let resolved = resolveRef(schema, spec) as Record<string, unknown>;
+
+  // For oneOf/anyOf unions, pick the first option
+  const unionOptions = (resolved.oneOf ?? resolved.anyOf) as Record<string, unknown>[] | undefined;
+  if (unionOptions && unionOptions.length > 0) {
+    resolved = resolveRef(unionOptions[0], spec) as Record<string, unknown>;
+  }
 
   const result: NormalizedSchema = {
     type: (resolved.type as string) ?? 'object',
