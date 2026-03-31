@@ -69,7 +69,8 @@ export function buildTemplateContext(
 
   // Build parameter declarations
   const showOptional = config.showOptionalParams ?? true;
-  const paramFilter = (p: NormalizedParam) => !p.deprecated && (p.required || showOptional);
+  const excluded = new Set(config.excludeParams ?? []);
+  const paramFilter = (p: NormalizedParam) => !p.deprecated && !excluded.has(p.name) && (p.required || showOptional);
 
   const paramDeclarations = op.parameters
     .filter(paramFilter)

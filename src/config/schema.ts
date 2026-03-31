@@ -46,6 +46,9 @@ export const ExamplesConfigSchema = z.object({
   /** Whether to include optional parameters in generated examples. Default: true */
   showOptionalParams: z.boolean().default(true),
 
+  /** Parameter names to exclude from generated examples (e.g., for oneOf auth headers) */
+  excludeParams: z.array(z.string()).default([]),
+
   /**
    * Override example values for parameters and body properties.
    * Values are raw code strings used as-is (no quoting/processing).
