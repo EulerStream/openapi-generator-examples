@@ -11,3 +11,4 @@ import './java.js';
 import './csharp.js';
 import './go.js';
 import './curl.js';
+import './python-opc.js';

@@ -1,0 +1,17 @@
+from {{variables.sdkPackage}}.api.{{apiProperty}} import {{methodName}}
+from {{variables.sdkPackage}}.client import AuthenticatedClient
+
+client = AuthenticatedClient(
+    base_url="https://api.example.com",
+    token="YOUR_API_KEY",
+)
+
+{{#hasRequiredParams}}
+{{{paramDeclarations}}}
+
+{{/hasRequiredParams}}
+{{#hasBody}}
+{{{bodyConstruction}}}
+
+{{/hasBody}}
+{{{resultLine}}}
