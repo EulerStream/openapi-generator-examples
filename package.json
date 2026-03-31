@@ -35,7 +35,7 @@
     "sdk"
   ],
   "author": "EulerStream",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "mustache": "^4.2.0",
     "yaml": "^2.7.0",
