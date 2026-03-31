@@ -166,12 +166,9 @@ const typescriptAdapter: LanguageAdapter = {
 
   buildBodyConstruction(body: NormalizedRequestBody, valueOverrides?: Record<string, string>): string {
     const objectLiteral = buildObjectLiteral(body.schema, 0, valueOverrides);
+    const typeName = body.schemaName ?? 'Record<string, unknown>';
 
-    const opening = body.schemaName
-      ? `const body: ${body.schemaName} = `
-      : `const body = `;
-
-    return opening + objectLiteral + ';';
+    return `const body: ${typeName} = ` + objectLiteral + ';';
   },
 
   buildResultLine(call: string, returnType: string | undefined): string {

@@ -310,7 +310,7 @@ describe('typescript adapter', () => {
       expect(result).not.toContain('status:');
     });
 
-    it('omits type annotation when schemaName is absent', () => {
+    it('uses Record<string, unknown> when schemaName is absent', () => {
       const body: NormalizedRequestBody = {
         required: true,
         schema: {
@@ -320,8 +320,7 @@ describe('typescript adapter', () => {
         },
       };
       const result = adapter.buildBodyConstruction(body);
-      expect(result).toContain('const body = {');
-      expect(result).not.toContain('RequestBody');
+      expect(result).toContain('const body: Record<string, unknown> = {');
     });
 
     it('generates nested object literals', () => {
