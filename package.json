@@ -1,6 +1,6 @@
 {
   "name": "@eulerstream/openapi-generator-examples",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Generate clean, Stripe-like usage examples from OpenAPI specs with configurable Mustache templates",
   "type": "module",
   "main": "./dist/index.cjs",
